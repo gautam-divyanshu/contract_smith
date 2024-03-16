@@ -1,7 +1,7 @@
-const fs = require("fs").promises;
-const solc = require("solc");
+import fs from "fs/promises";
+import solc from "solc";
 
-async function main() {
+async function compilefile() {
   // Load the contract source code
   const sourceCode = await fs.readFile("Demo.sol", "utf8");
   // Compile the source code and retrieve the ABI and Bytecode
@@ -27,4 +27,4 @@ function compile(sourceCode, contractName) {
   };
 }
 
-main()
+export default compilefile;

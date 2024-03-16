@@ -1,21 +1,23 @@
-const { Web3 } = require("web3");
+import Web3 from "web3";
+import dotenv from "dotenv"; // Import dotenv
+dotenv.config();
 
 // Loading the contract ABI and Bytecode
 // (the results of a previous compilation step)
-const fs = require("fs");
+import fs from "fs";
 const { abi, bytecode } = JSON.parse(fs.readFileSync("Demo.json"));
 
-async function main() {
+async function deployfile() {
   // Configuring the connection to an Ethereum node
   const network = process.env.ETHEREUM_NETWORK;
   const web3 = new Web3(
     new Web3.providers.HttpProvider(
-      `https://${network}.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    ),
+      `https://${network}.infura.io/v3/${process.env.INFURA_API_KEY}`
+    )
   );
   // Creating a signing account from a private key
   const signer = web3.eth.accounts.privateKeyToAccount(
-    '0x' + process.env.SIGNER_PRIVATE_KEY,
+    "0x" + process.env.SIGNER_PRIVATE_KEY
   );
   web3.eth.accounts.wallet.add(signer);
 
@@ -35,9 +37,8 @@ async function main() {
   // The contract is now deployed on chain!
   console.log(`Contract deployed at ${deployedContract.options.address}`);
   console.log(
-    `Add DEMO_CONTRACT to the.env file to store the contract address: ${deployedContract.options.address}`,
+    `Add DEMO_CONTRACT to the.env file to store the contract address: ${deployedContract.options.address}`
   );
 }
 
-require("dotenv").config();
-main();
+export default deployfile;
