@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import * as monaco from "monaco-editor";
+import Web3 from "web3";
 
 const SolidityCodeEditor: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
@@ -83,6 +84,24 @@ const SolidityCodeEditor: React.FC = () => {
     };
   }, []);
 
+  const handleCompile = () => {
+    if (window.ethereum) {
+      // Use MetaMask's provider
+      const web3 = new Web3(window.ethereum);
+      // Request MetaMask to enable accounts
+      window.ethereum.enable().then(() => {
+        // Do something after accounts are enabled
+        console.log("MetaMask is enabled");
+      }).catch(error => {
+        // Handle errors or user rejection
+        console.error("Error enabling MetaMask:", error);
+      });
+    } else {
+      // MetaMask is not available
+      console.error("MetaMask is not available");
+    }
+  };
+
   return (
     <>
     <h2 className="text-center mt-2 mb-2 text-lg font-bold">Editor</h2>
@@ -91,9 +110,12 @@ const SolidityCodeEditor: React.FC = () => {
       className="solidity-editor w-full h-full border border-gray-700"
       style={{ borderRadius: "8px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
     />
-    <button className="fixed bottom-4 right-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none">
-  Compile
-</button>
+    <button 
+        className="fixed bottom-4 right-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none"
+        onClick={handleCompile}
+      >
+        Compile
+      </button>
 
       </>
   );
