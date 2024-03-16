@@ -1,4 +1,4 @@
-pragma solidity >=0.5.8;
+pragma solidity >=0.8.8;
 
 contract Demo {
     event Echo(string message);
@@ -6,4 +6,4 @@ contract Demo {
     function echo(string calldata message) external {
         emit Echo(message);
     }
-}
+}   
