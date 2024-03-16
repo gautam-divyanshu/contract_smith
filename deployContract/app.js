@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/deploy", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     await compilefile();
     await deployfile();
