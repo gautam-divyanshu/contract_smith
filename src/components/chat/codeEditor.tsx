@@ -1,8 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import * as monaco from "monaco-editor";
+import { toast } from "sonner";
 
 const SolidityCodeEditor: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const [solidityCode, setSolidityCode] = useState<string>("");
+  const [deploy, setDeploy] = useState<boolean>(false);
 
   useEffect(() => {
     // Define the Solidity language
@@ -11,13 +14,53 @@ const SolidityCodeEditor: React.FC = () => {
     // Define the syntax highlighting rules for Solidity
     monaco.languages.setMonarchTokensProvider("solidity", {
       keywords: [
-        "contract", "function", "uint", "mapping", "address", "returns", "public", 
-        "private", "external", "internal", "view", "payable", "pure", "constant", 
-        "if", "else", "while", "for", "return", "new", "delete"
+        "contract",
+        "function",
+        "uint",
+        "mapping",
+        "address",
+        "returns",
+        "public",
+        "private",
+        "external",
+        "internal",
+        "view",
+        "payable",
+        "pure",
+        "constant",
+        "if",
+        "else",
+        "while",
+        "for",
+        "return",
+        "new",
+        "delete",
       ],
       operators: [
-        "+", "-", "*", "/", "%", "!", "=", "==", "!=", ">", ">=", "<", "<=", 
-        "&&", "||", "&", "|", "^", "<<", ">>", "++", "--", "?", ":"
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "!",
+        "=",
+        "==",
+        "!=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "&&",
+        "||",
+        "&",
+        "|",
+        "^",
+        "<<",
+        ">>",
+        "++",
+        "--",
+        "?",
+        ":",
       ],
       symbols: /[=><!~?:&|+\-*\/\^%]+/,
       tokenizer: {
@@ -69,12 +112,18 @@ const SolidityCodeEditor: React.FC = () => {
       theme: "vs-dark", // Use a built-in theme or replace with your custom theme
       automaticLayout: true, // Automatically resize the editor based on content
       minimap: {
-        enabled: false // Disable minimap for simplicity
+        enabled: false, // Disable minimap for simplicity
       },
       lineNumbers: "on", // Show line numbers
       folding: true, // Enable code folding
       fontSize: 14, // Set font size
       fontFamily: "Menlo, Monaco, 'Courier New', monospace", // Set font family
+    });
+
+    // Set up listener for editor value changes
+    editor.onDidChangeModelContent(() => {
+      const code = editor.getValue();
+      setSolidityCode(code);
     });
 
     return () => {
@@ -83,19 +132,62 @@ const SolidityCodeEditor: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (deploy) {
+      // Show alert when deploy is true
+      toast.success("Horay!! Deployment successfull.");
+    }
+  }, [deploy]);
+
+  const handleCompile = () => {
+    if (solidityCode) {
+      fetch("http://localhost:5000/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: solidityCode }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("API response:", data);
+          // Handle API response here
+          setDeploy(true);
+        })
+        .catch((error) => {
+          console.error(
+            "There was a problem with your fetch operation:",
+            error
+          );
+        });
+    } else {
+      console.error("Solidity code is empty");
+    }
+  };
+
   return (
     <>
-    <h2 className="text-center mt-2 mb-2 text-lg font-bold">Editor</h2>
-    <div
-      ref={editorRef}
-      className="solidity-editor w-full h-full border border-gray-700"
-      style={{ borderRadius: "8px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
-    />
-    <button className="fixed bottom-4 right-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none">
-  Compile
-</button>
-
-      </>
+      <h2 className="text-center mt-2 mb-2 text-lg font-bold">Editor</h2>
+      <div
+        ref={editorRef}
+        className="solidity-editor w-full h-full border border-gray-700"
+        style={{
+          borderRadius: "8px",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+      />
+      <button
+        className="fixed bottom-4 right-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none"
+        onClick={handleCompile}
+      >
+        Compile
+      </button>
+    </>
   );
 };
 
